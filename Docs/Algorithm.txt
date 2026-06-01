@@ -1,0 +1,52 @@
+================================================================================
+          TECHNICAL ALGORITHM SPECIFICATION: FAKE NEWS DETECTION
+================================================================================
+
+[STAGE 1: ASYNCHRONOUS BACKGROUND DATASET GENERATION]
+1. Initialize an empty sequence array.
+2. For index 1 to N (where N = 800 per class):
+   a. Select a random template string from FAKE_TEMPLATES.
+   b. Parse and substitute token keys {topic}, {effect}, {actor} using choice fields.
+   c. Append populated string payload to array with a ground-truth label of 'FAKE'.
+3. For index 1 to N (where N = 800 per class):
+   a. Select a random template string from REAL_TEMPLATES.
+   b. Parse and substitute token keys {topic}, {univ}, {n} using choice fields.
+   c. Append populated string payload to array with a ground-truth label of 'REAL'.
+4. Construct a Pandas DataFrame workspace. Shuffle row records uniformly with a fixed seed.
+
+[STAGE 2: STRATIFIED WORKSPACE DATASET SPLITTING]
+1. Read user configuration values for Train %, Validation %, and Test %.
+2. Verify total equals 100%. If false, raise exception flags to UI.
+3. Split total rows into temporary array and test partition using Test % ratio.
+4. Stratify arrays by 'label' key to preserve perfect class parity (50/50 balance).
+5. Split remaining temporary dataset using calculated sub-ratio: Validation % / (Train % + Validation %).
+
+[STAGE 3: NATURAL LANGUAGE PIPELINE PREPROCESSING]
+1. For each text instance string input:
+   a. Force conversion of character encoding arrays to absolute lowercase strings.
+   b. Execute regular expression filter stripping hyperlinks matching pattern: "http\S+|www\S+"
+   c. Execute regular expression filter replacing non-alphabetic keys with single whitespace gaps: "[^a-z\s]"
+   d. Condense consecutive empty spacing blocks into singular spaces and strip trailing edges.
+
+[STAGE 4: VECTORIZATION AND LOGISTIC MODEL TRAINING]
+1. Initialize Scikit-Learn TF-IDF vectorizer configuration:
+   a. Set unigram and bigram limits: ngram_range=(1, 2)
+   b. Eliminate noise via standard "english" stop-words dictionary array.
+   c. Compress sparse matrix vocabulary tracking to maximum feature length of 3000.
+2. Initialize balanced Logistic Regression structural solver.
+3. Process training data matrices through pipeline: fit model paths on normalized values.
+4. Evaluate validation and test metrics using prediction scores to output accuracy metrics.
+
+[STAGE 5: REAL-TIME PREDICTION EVALUATION WITH DB PERSISTENCE]
+1. Take UI text input buffer string. Apply preprocessing from STAGE 3.
+2. Extract probability profile maps using the pipeline's `.predict_proba()` array method.
+3. Match array indexes directly to tracking class strings: classes_ = ['FAKE', 'REAL']
+4. Apply the strict ground-truth override logic check:
+   IF prob_dict["REAL"] > prob_dict["FAKE"]:
+       Final Verdict = "REAL"
+   ELSE:
+       Final Verdict = "FAKE"
+5. Compute output confidence metric: Confidence = Max Probability * 100
+6. Log metrics to internal runtime session cache arrays for Matplotlib updates.
+7. Send transaction dict asynchronously to the MongoDB collection if the system is running online.
+================================================================================
