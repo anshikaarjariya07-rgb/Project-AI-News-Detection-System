@@ -1,0 +1,25 @@
+# === Python Caches & Bytecode ===
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# === Virtual Environments ===
+.venv/
+venv/
+ENV/
+env/
+
+# === VS Code Workspace Files ===
+.vscode/
+*.code-workspace
+
+# === OS Generated Noise ===
+.DS_Store
+.DS_Store?
+Thumbs.db
+ehthumbs.db
+
+# === Data & Local DB Caches ===
+*.log
+.mongo/
